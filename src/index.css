@@ -1,0 +1,5 @@
+@import "tailwindcss";
+:root { --tb-orange: #FF9B22; --tb-orange-hover: #e68a1e; --tb-bg: #fffbf7; }
+*{ -webkit-tap-highlight-color: transparent }
+html,body{height:100%}
+body{margin:0; font-family: Inter, system-ui, -apple-system, sans-serif; background: var(--tb-bg); color:#111827; -webkit-font-smoothing: antialiased}
