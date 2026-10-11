@@ -1,17 +1,20 @@
+import { useState, useEffect } from 'react'
+import { Loader2, AlertCircle } from 'lucide-react'
+import { apiGet } from '../lib/api'
 export default function UserProfiles(){
+  const [loading,setLoading]=useState(false)
+  const [err,setErr]=useState<string|null>(null)
+  useEffect(()=>{
+    let alive=true; setLoading(true)
+    apiGet('/api/user-profiles').then(()=>{ if(alive) setErr(null)}).catch((e:Error)=>{ if(alive) setErr(e.message)}).finally(()=>{ if(alive) setLoading(false)})
+    return ()=>{alive=false}
+  },[])
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">User Profile Management</h1><p className="text-gray-600 text-sm">Comprehensive user profile management and administration</p>
-      <div className="bg-white rounded-lg border p-4 flex gap-3">
-        <input placeholder="Search users by name or email..." className="flex-1 h-10 px-4 rounded-md border text-sm"/>
-        <select className="h-10 px-3 rounded-md border text-sm"><option>All Status</option></select>
-        <select className="h-10 px-3 rounded-md border text-sm"><option>All Roles</option></select>
-        <button className="h-10 px-4 rounded-md border text-sm">Bulk Actions</button>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white rounded-lg border p-6"><h3 className="font-semibold">Users (3)</h3><p className="text-sm text-gray-500">Manage user profiles and settings</p><div className="mt-8 text-center text-gray-400 text-sm">Loading user profiles...</div></div>
-        <div className="bg-white rounded-lg border p-6 text-center text-gray-400 text-sm">Select a user to view details</div>
-      </div>
+      <div><h1 className="text-3xl font-bold text-gray-900">User Profiles</h1><p className="text-gray-600 mt-1 text-sm">Manage your user profiles</p></div>
+      {loading && <div className="flex items-center gap-2 text-sm text-gray-500"><Loader2 size={16} className="animate-spin"/> Loading User Profiles...</div>}
+      {err && <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2"><AlertCircle size={16}/> API unavailable — showing placeholder ({err})</div>}
+      <div className="bg-white rounded-lg border shadow-sm overflow-hidden"><div className="p-8 text-center"><div className="w-12 h-12 rounded-full bg-primary/10 text-primary grid place-items-center mx-auto mb-3">•</div><h3 className="text-lg font-semibold">User Profiles</h3><p className="text-sm text-gray-500 mt-1">This section is connected to https://admin-b2c.techbody.pt</p><p className="text-sm text-gray-500">Data via /api/user-profiles — fallback placeholder when API offline.</p></div></div>
     </div>
   )
 }

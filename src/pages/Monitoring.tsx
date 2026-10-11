@@ -1,12 +1,20 @@
+import { useState, useEffect } from 'react'
+import { Loader2, AlertCircle } from 'lucide-react'
+import { apiGet } from '../lib/api'
 export default function Monitoring(){
+  const [loading,setLoading]=useState(false)
+  const [err,setErr]=useState<string|null>(null)
+  useEffect(()=>{
+    let alive=true; setLoading(true)
+    apiGet('/api/monitoring').then(()=>{ if(alive) setErr(null)}).catch((e:Error)=>{ if(alive) setErr(e.message)}).finally(()=>{ if(alive) setLoading(false)})
+    return ()=>{alive=false}
+  },[])
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Real-time Monitoring</h1><p className="text-gray-600 text-sm">Monitor platform health and performance in real time</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg border p-6"><h3 className="font-semibold">CPU Usage</h3><p className="text-2xl font-bold mt-2">23%</p><div className="mt-2 h-2 bg-gray-100 rounded-full"><div className="h-2 bg-primary rounded-full w-[23%]"></div></div></div>
-        <div className="bg-white rounded-lg border p-6"><h3 className="font-semibold">Memory</h3><p className="text-2xl font-bold mt-2">62%</p><div className="mt-2 h-2 bg-gray-100 rounded-full"><div className="h-2 bg-green-500 rounded-full w-[62%]"></div></div></div>
-        <div className="bg-white rounded-lg border p-6"><h3 className="font-semibold">Active Connections</h3><p className="text-2xl font-bold mt-2">84</p><p className="text-xs text-gray-500">users online</p></div>
-      </div>
+      <div><h1 className="text-3xl font-bold text-gray-900">Monitoring</h1><p className="text-gray-600 mt-1 text-sm">Manage your monitoring</p></div>
+      {loading && <div className="flex items-center gap-2 text-sm text-gray-500"><Loader2 size={16} className="animate-spin"/> Loading Monitoring...</div>}
+      {err && <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2"><AlertCircle size={16}/> API unavailable — showing placeholder ({err})</div>}
+      <div className="bg-white rounded-lg border shadow-sm overflow-hidden"><div className="p-8 text-center"><div className="w-12 h-12 rounded-full bg-primary/10 text-primary grid place-items-center mx-auto mb-3">•</div><h3 className="text-lg font-semibold">Monitoring</h3><p className="text-sm text-gray-500 mt-1">This section is connected to https://admin-b2c.techbody.pt</p><p className="text-sm text-gray-500">Data via /api/monitoring — fallback placeholder when API offline.</p></div></div>
     </div>
   )
 }
