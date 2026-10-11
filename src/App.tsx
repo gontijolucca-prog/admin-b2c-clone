@@ -2,9 +2,10 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Users from './pages/Users'
+import WorkoutGroups from './pages/WorkoutGroups'
+import Analytics from './pages/Analytics'
 import ApiKeys from './pages/ApiKeys'
 import Webhooks from './pages/Webhooks'
-import Analytics from './pages/Analytics'
 import Placeholder from './pages/Placeholder'
 import Layout from './components/Layout'
 
@@ -24,7 +25,7 @@ export default function App() {
       <Route path="/users" element={<RequireAuth><Layout><Users /></Layout></RequireAuth>} />
       <Route path="/app-registrations" element={<P title="App Registrations" />} />
       <Route path="/user-profiles" element={<P title="User Profiles" />} />
-      <Route path="/workout-groups" element={<P title="Workout Groups" />} />
+      <Route path="/workout-groups" element={<RequireAuth><Layout><WorkoutGroups /></Layout></RequireAuth>} />
       <Route path="/workout-library" element={<P title="Workout Library" />} />
       <Route path="/workout-plans" element={<P title="Workout Plans" />} />
       <Route path="/subscriptions" element={<P title="Subscriptions" />} />

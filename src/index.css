@@ -1,5 +1,26 @@
 @import "tailwindcss";
-:root { --tb-orange: #FF9B22; --tb-orange-hover: #e68a1e; --tb-bg: #fffbf7; }
-*{ -webkit-tap-highlight-color: transparent }
+@theme {
+  --color-primary: hsl(28 100% 56%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-border: hsl(214.3 31.8% 91.4%);
+  --color-input: hsl(214.3 31.8% 91.4%);
+  --color-ring: hsl(215 20.2% 65.1%);
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222.2 47.4% 11.2%);
+}
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+  --primary: 28 100% 56%;
+  --primary-foreground: 0 0% 100%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 215 20.2% 65.1%;
+  --radius: 0.5rem;
+}
+*{border-color:hsl(var(--border))}
+*{-webkit-tap-highlight-color: transparent}
 html,body{height:100%}
-body{margin:0; font-family: Inter, system-ui, -apple-system, sans-serif; background: var(--tb-bg); color:#111827; -webkit-font-smoothing: antialiased}
+body{margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; background: hsl(var(--background)); color:hsl(var(--foreground)); -webkit-font-smoothing: antialiased}
+.custom-scrollbar-hide::-webkit-scrollbar{display:none}
+.custom-scrollbar-hide{scrollbar-width:none}
