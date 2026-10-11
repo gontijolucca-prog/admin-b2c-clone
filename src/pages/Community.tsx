@@ -1,0 +1,1 @@
+export default function Community(){ return (<div className="space-y-6"><h1 className="text-3xl font-bold">Community</h1><p className="text-gray-600 text-sm">Manage community posts and interactions</p><div className="bg-white rounded-lg border shadow-sm p-8 text-center text-gray-500 text-sm">Community feed — posts, comments and likes from the mobile app</div></div>) }
