@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
 import Dashboard from './pages/Dashboard'
 import Users from './pages/Users'
 import WorkoutGroups from './pages/WorkoutGroups'
@@ -26,7 +27,7 @@ import UserProfiles from './pages/UserProfiles'
 import AuditLogs from './pages/AuditLogs'
 import SecurityCompliance from './pages/SecurityCompliance'
 import Settings from './pages/Settings'
-import Placeholder from './pages/Placeholder'
+import AdvancedSettings from './pages/AdvancedSettings'
 import Layout from './components/Layout'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -34,12 +35,12 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!token) return <Navigate to="/login" replace />
   return <>{children}</>
 }
-function P({ title }: { title: string }) { return <RequireAuth><Layout><Placeholder title={title} /></Layout></RequireAuth> }
 
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/" element={<RequireAuth><Layout><Dashboard /></Layout></RequireAuth>} />
       <Route path="/dashboard" element={<RequireAuth><Layout><Dashboard /></Layout></RequireAuth>} />
       <Route path="/users" element={<RequireAuth><Layout><Users /></Layout></RequireAuth>} />
@@ -67,7 +68,7 @@ export default function App() {
       <Route path="/audit-logs" element={<RequireAuth><Layout><AuditLogs /></Layout></RequireAuth>} />
       <Route path="/security" element={<RequireAuth><Layout><SecurityCompliance /></Layout></RequireAuth>} />
       <Route path="/settings" element={<RequireAuth><Layout><Settings /></Layout></RequireAuth>} />
-      <Route path="/advanced-settings" element={<P title="Advanced Settings" />} />
+      <Route path="/advanced-settings" element={<RequireAuth><Layout><AdvancedSettings /></Layout></RequireAuth>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

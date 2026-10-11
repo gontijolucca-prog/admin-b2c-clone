@@ -1,6 +1,18 @@
-import { Users, Zap, Activity, DollarSign, TrendingUp, Play, Video } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Users, Zap, Activity, DollarSign, TrendingUp } from 'lucide-react'
+import { apiGet } from '../lib/api'
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({ users: 84, ems: 98, sessions: 0, revenue: 0, loading: false })
+  useEffect(()=>{
+    let alive=true
+    setStats(s=>({...s, loading:true}))
+    apiGet('/api/dashboard').then((j:any)=>{
+      if(!alive) return
+      setStats({ users: j.users ?? j.activeUsers ?? 84, ems: j.emsDevices ?? j.ems ?? 98, sessions: j.sessions ?? 0, revenue: j.revenue ?? 0, loading:false })
+    }).catch(()=>{ if(alive) setStats(s=>({...s, loading:false}))})
+    return ()=>{alive=false}
+  },[])
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -38,7 +50,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-white/80">Active Users</p>
-              <p className="text-2xl font-bold mt-1">84</p>
+              <p className="text-2xl font-bold mt-1">{stats.loading?'…':stats.users}</p>
               <div className="flex items-center mt-2 gap-1">
                 <TrendingUp size={14} className="text-white/90" />
                 <span className="text-sm font-medium">+20.0%</span><span className="text-sm text-white/70 ml-1">from last month</span>
@@ -51,7 +63,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-white/80">EMS Devices</p>
-              <p className="text-2xl font-bold mt-1">98</p>
+              <p className="text-2xl font-bold mt-1">{stats.ems}</p>
               <div className="flex items-center mt-2 gap-1">
                 <TrendingUp size={14} className="text-white/90" />
                 <span className="text-sm font-medium">+0.0%</span><span className="text-sm text-white/70 ml-1">from last month</span>
@@ -63,11 +75,11 @@ export default function Dashboard() {
         <div className="rounded-lg bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-sm hover:shadow-lg transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-white/80">Workout Sessions</p>
-              <p className="text-2xl font-bold mt-1">0</p>
+              <p className="text-sm font-medium text-white/80">Sessions Today</p>
+              <p className="text-2xl font-bold mt-1">{stats.sessions}</p>
               <div className="flex items-center mt-2 gap-1">
-                <TrendingUp size={14} className="text-white/90" />
-                <span className="text-sm font-medium">+0.0%</span><span className="text-sm text-white/70 ml-1">from last month</span>
+                <Activity size={14} className="text-white/90" />
+                <span className="text-sm font-medium">Live</span>
               </div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg"><Activity size={24} className="text-white" /></div>
@@ -76,11 +88,11 @@ export default function Dashboard() {
         <div className="rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-sm hover:shadow-lg transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-white/80">Monthly Revenue</p>
-              <p className="text-2xl font-bold mt-1">$0</p>
+              <p className="text-sm font-medium text-white/80">Revenue</p>
+              <p className="text-2xl font-bold mt-1">€{stats.revenue}</p>
               <div className="flex items-center mt-2 gap-1">
                 <TrendingUp size={14} className="text-white/90" />
-                <span className="text-sm font-medium">+0.0%</span><span className="text-sm text-white/70 ml-1">from last month</span>
+                <span className="text-sm font-medium">+12%</span>
               </div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm p-3 rounded-lg"><DollarSign size={24} className="text-white" /></div>
@@ -88,70 +100,22 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-          <div className="p-6 border-b">
-            <h3 className="text-xl font-semibold">User Engagement &amp; EMS Usage</h3>
-            <p className="text-sm text-muted-foreground">Track platform usage and EMS device activity</p>
-          </div>
-          <div className="p-6">
-            <div className="h-[240px] rounded-lg border-2 border-dashed bg-gradient-to-br from-orange-50/50 to-blue-50/50 flex flex-col items-center justify-center text-gray-400">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mb-2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-              <span className="text-sm font-medium text-gray-600">Chart visualization</span>
-              <span className="text-xs">Coming soon</span>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-lg border shadow-sm p-6">
+          <h3 className="font-semibold">User Engagement</h3>
+          <p className="text-sm text-gray-500">Daily active users over the last 7 days</p>
+          <div className="h-48 mt-4 border-2 border-dashed rounded-lg grid place-items-center text-gray-400 text-sm">Chart — data from /api/analytics</div>
         </div>
-        <div className="bg-white rounded-lg border shadow-sm overflow-hidden flex flex-col">
-          <div className="p-6 border-b">
-            <h3 className="text-xl font-semibold">Recent Platform Activity</h3>
-            <p className="text-sm text-muted-foreground">Latest user interactions and achievements</p>
+        <div className="bg-white rounded-lg border shadow-sm p-6">
+          <h3 className="font-semibold">Recent Platform Activity</h3>
+          <div className="mt-4 space-y-3">
+            <div className="flex gap-3 items-center"><span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 grid place-items-center text-xs font-semibold">GE</span><div><p className="text-sm font-medium">geral7554 joined</p><p className="text-xs text-gray-500">2 hours ago</p></div></div>
+            <div className="flex gap-3 items-center"><span className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 grid place-items-center text-xs font-semibold">AN</span><div><p className="text-sm font-medium">anavitoriasantiago workout</p><p className="text-xs text-gray-500">5 hours ago</p></div></div>
           </div>
-          <div className="divide-y">
-            <div className="flex items-center gap-3 p-4 hover:bg-gray-50">
-              <span className="w-10 h-10 rounded-full bg-orange-100 text-primary grid place-items-center text-sm font-medium shrink-0">GE</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">geral7554</p>
-                <p className="text-sm text-gray-500 truncate">Connected new EMS device</p>
-              </div>
-              <span className="text-xs border rounded-full px-2.5 py-0.5 font-semibold shrink-0">1 day ago</span>
-            </div>
-            <div className="flex items-center gap-3 p-4 hover:bg-gray-50">
-              <span className="w-10 h-10 rounded-full bg-orange-100 text-primary grid place-items-center text-sm font-medium shrink-0">AN</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">anavitoriasantiago2561696</p>
-                <p className="text-sm text-gray-500 truncate">Connected new EMS device</p>
-              </div>
-              <span className="text-xs border rounded-full px-2.5 py-0.5 font-semibold shrink-0">2 days ago</span>
-            </div>
-          </div>
-          <div className="flex-1 bg-gray-50/50 min-h-[80px]"></div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <div className="p-6">
-          <h3 className="text-2xl font-semibold">Quick Actions</h3>
-          <p className="text-sm text-muted-foreground">Frequently used actions to manage your gym</p>
-        </div>
-        <div className="p-6 pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="h-24 flex flex-col items-center justify-center gap-2 rounded-md border bg-background hover:bg-blue-50 hover:border-blue-200 transition">
-              <Users size={24} className="text-blue-600" />
-              <span className="text-sm font-medium">Add User</span>
-            </button>
-            <button className="h-24 flex flex-col items-center justify-center gap-2 rounded-md border bg-background hover:bg-yellow-50 hover:border-yellow-200 transition">
-              <Zap size={24} className="text-yellow-600" />
-              <span className="text-sm font-medium">Register EMS Device</span>
-            </button>
-            <button className="h-24 flex flex-col items-center justify-center gap-2 rounded-md border bg-background hover:bg-primary/10 hover:border-primary/20 transition">
-              <Play size={24} className="text-primary" />
-              <span className="text-sm font-medium">Upload Workout</span>
-            </button>
-            <button className="h-24 flex flex-col items-center justify-center gap-2 rounded-md border bg-background hover:bg-purple-50 hover:border-purple-200 transition">
-              <Video size={24} className="text-purple-600" />
-              <span className="text-sm font-medium">Schedule Live Session</span>
-            </button>
+          <h3 className="font-semibold mt-6">Quick Actions</h3>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button className="h-9 rounded-md border bg-white text-sm">Create Workout</button>
+            <button className="h-9 rounded-md border bg-white text-sm">Manage Users</button>
           </div>
         </div>
       </div>

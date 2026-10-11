@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import { setSecureToken } from '../lib/api'
 
 export default function Login() {
   const nav = useNavigate()
@@ -18,22 +19,24 @@ export default function Login() {
       const envPass = import.meta.env.VITE_ADMIN_PASSWORD
       if (envEmail && envPass && email === envEmail && password === envPass) {
         const token = btoa(`${email}:${Date.now()}`)
-        localStorage.setItem('tb_token', token)
+        setSecureToken(token)
         localStorage.setItem('tb_user', JSON.stringify({ email }))
         fetch(`${import.meta.env.VITE_API_BASE || 'https://admin-b2c.techbody.pt'}/auth/login`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
           body: JSON.stringify({ email, password }),
         }).catch(() => {})
         nav('/', { replace: true })
         return
       }
       const r = await fetch(`${import.meta.env.VITE_API_BASE || 'https://admin-b2c.techbody.pt'}/auth/login`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
       if (r.ok) {
-        const token = btoa(`${email}:${Date.now()}`)
-        localStorage.setItem('tb_token', token)
+        let t = ''
+        try { const j = await r.json(); t = j.token || j.access_token || '' } catch {}
+        if (!t) t = btoa(`${email}:${Date.now()}`)
+        setSecureToken(t)
         localStorage.setItem('tb_user', JSON.stringify({ email }))
         nav('/', { replace: true })
       } else {
@@ -102,7 +105,7 @@ export default function Login() {
         </button>
 
         <div className="mt-4 text-center">
-          <a href="#" onClick={e => e.preventDefault()} className="text-[13.5px] font-medium text-primary hover:text-primary/80">Forgot your password?</a>
+          <Link to="/forgot-password" className="text-[13.5px] font-medium text-primary hover:text-primary/80">Forgot your password?</Link>
         </div>
       </form>
 

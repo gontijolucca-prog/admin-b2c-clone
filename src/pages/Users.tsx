@@ -1,5 +1,8 @@
-import { Search, Filter } from 'lucide-react'
-const users = [
+import { useState, useMemo, useEffect } from 'react'
+import { Search, Filter, Loader2, AlertCircle } from 'lucide-react'
+import { apiGet } from '../lib/api'
+
+const fallbackUsers = [
   { id: 'CA', name: 'carlasousa3801', full: 'Carla sousa', email: 'carla.sousa@me.com', sub: '-', role: 'User', ems: '-', status: 'Active', avatar: '' },
   { id: 'VA', name: 'vaniacfernandes19782502', full: 'Vânia Carina Fernandes Tinoco', email: 'vaniacfernandes1978@gmail.com', sub: '-', role: 'User', ems: '-', status: 'Active', avatar: '' },
   { id: 'AL', name: 'alexandrefsoares7336', full: 'alexandre soares', email: 'alexandrefsoares@gmail.com', sub: '-', role: 'User', ems: '-', status: 'Active', avatar: '' },
@@ -13,6 +16,50 @@ const users = [
 ]
 
 export default function Users() {
+  const [q, setQ] = useState('')
+  const [page, setPage] = useState(1)
+  const [users, setUsers] = useState(fallbackUsers)
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const pageSize = 10
+
+  useEffect(() => {
+    let alive = true
+    setLoading(true)
+    apiGet('/api/users').then((j: any) => {
+      if (!alive) return
+      const list = Array.isArray(j) ? j : j.users || j.data || []
+      if (Array.isArray(list) && list.length > 0) {
+        const mapped = list.map((u: any, i: number) => ({
+          id: (u.id || u._id || String(i)).slice(0,2).toUpperCase(),
+          name: u.username || u.name || `user${i}`,
+          full: u.fullName || u.name || u.email || '',
+          email: u.email || '',
+          sub: u.subscription || '-',
+          role: u.role || 'User',
+          ems: u.emsDevice || u.device || '-',
+          status: u.status || 'Active',
+          avatar: u.avatar || '',
+          highlight: false,
+        }))
+        setUsers(mapped)
+      }
+      setErr(null)
+    }).catch((e: Error) => { if(alive) setErr(e.message) }).finally(()=> { if(alive) setLoading(false) })
+    return () => { alive = false }
+  }, [])
+
+  const filtered = useMemo(() => {
+    if (!q.trim()) return users
+    const s = q.toLowerCase()
+    return users.filter(u => `${u.full} ${u.email} ${u.name} ${u.ems}`.toLowerCase().includes(s))
+  }, [users, q])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const paged = filtered.slice((page-1)*pageSize, page*pageSize)
+
+  useEffect(()=>{ setPage(1) }, [q])
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -29,15 +76,25 @@ export default function Users() {
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         <div className="p-4 sm:p-6">
           <div className="flex items-center justify-between gap-4 mb-6">
-            <h2 className="text-lg font-semibold">All Users (10)</h2>
+            <h2 className="text-lg font-semibold">All Users ({filtered.length})</h2>
             <div className="flex items-center gap-2">
               <div className="relative hidden sm:block">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input placeholder="Search users..." className="h-9 pl-9 pr-3 w-64 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search users..." className="h-9 pl-9 pr-3 w-64 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
               <button className="h-9 w-9 grid place-items-center rounded-md border border-input hover:bg-accent">
                 <Filter size={16} />
               </button>
+            </div>
+          </div>
+
+          {loading && <div className="flex items-center gap-2 text-sm text-gray-500 py-4"><Loader2 size={16} className="animate-spin"/> Loading users from API...</div>}
+          {err && <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 mb-4"><AlertCircle size={16}/> API unavailable — showing cached data ({err})</div>}
+
+          <div className="sm:hidden mb-3">
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+              <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search users..." className="h-9 pl-9 pr-3 w-full rounded-md border border-input bg-background text-sm"/>
             </div>
           </div>
 
@@ -55,39 +112,33 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody>
-                {users.map(u => (
+                {paged.map(u => (
                   <tr key={u.name} className={`border-b last:border-0 hover:bg-gray-50 ${u.highlight ? 'bg-gray-50/70' : ''}`}>
                     <td className="py-3 px-2">
                       <span className="inline-flex items-center gap-2">
                         {u.avatar ? <img src={u.avatar} className="w-8 h-8 rounded-full object-cover" /> : <span className="w-8 h-8 rounded-full bg-[#fff4e6] text-[#e68a00] grid place-items-center text-xs font-semibold">{u.id.slice(0,2)}</span>}
-                        <span className="text-sm font-medium text-gray-900">{u.name}</span>
+                        <span className="text-sm font-medium truncate max-w-[110px]">{u.name}</span>
                       </span>
                     </td>
-                    <td className="py-3 px-2 text-sm text-gray-900 max-w-[160px]">{u.full}</td>
-                    <td className="py-3 px-2 text-sm text-gray-900 max-w-[200px] truncate">{u.email}</td>
-                    <td className="py-3 px-2 text-sm text-gray-400">
-                      <span className="w-6 h-2 rounded-full bg-gray-100 inline-block"></span>
-                    </td>
-                    <td className="py-3 px-2"><span className="text-xs font-semibold border rounded-full px-2.5 py-0.5">User</span></td>
-                    <td className="py-3 px-2 text-sm">
-                      <span className="inline-flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
-                        <span className="text-sm text-gray-900">{u.ems}</span>
-                      </span>
-                    </td>
-                    <td className="py-3 px-2"><span className="bg-[#FF9B22] text-white text-xs font-semibold rounded-full px-3 py-1">Active</span></td>
+                    <td className="py-3 px-2 text-sm max-w-[160px] truncate">{u.full}</td>
+                    <td className="py-3 px-2 text-sm text-gray-600 max-w-[180px] truncate">{u.email}</td>
+                    <td className="py-3 px-2 text-sm text-gray-500">{u.sub}</td>
+                    <td className="py-3 px-2"><span className="inline-flex text-xs font-medium rounded-full border px-2 py-0.5 bg-gray-50">{u.role}</span></td>
+                    <td className="py-3 px-2 text-sm">{u.ems}</td>
+                    <td className="py-3 px-2"><span className="inline-flex items-center text-xs font-medium rounded-full bg-[#fff4e6] text-[#b45309] border border-orange-200 px-2.5 py-1"><span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b] mr-1.5"/> {u.status}</span></td>
                   </tr>
                 ))}
+                {paged.length===0 && <tr><td colSpan={7} className="py-12 text-center text-sm text-gray-500">No users found for "{q}"</td></tr>}
               </tbody>
             </table>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t mt-4 text-sm">
-            <span className="text-gray-600">Showing 1 to 10 of 78 users</span>
+          <div className="flex items-center justify-between pt-4 mt-2 border-t text-sm">
+            <span className="text-gray-600">Showing {paged.length ? (page-1)*pageSize+1 : 0} to {Math.min(page*pageSize, filtered.length)} of {filtered.length}</span>
             <div className="flex items-center gap-2">
-              <button disabled className="h-8 px-3 rounded-md border text-gray-400 cursor-not-allowed">Previous</button>
-              <span className="text-gray-600">Page 1 of 8</span>
-              <button className="h-8 px-3 rounded-md border hover:bg-accent">Next</button>
+              <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="h-8 px-3 rounded-md border text-sm disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+              <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+              <button disabled={page>=totalPages} onClick={()=>setPage(p=>p+1)} className="h-8 px-3 rounded-md border text-sm disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
             </div>
           </div>
         </div>

@@ -1,45 +1,45 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import {
-  House, Users, UserPlus, Layers, Play, ListVideo, CreditCard, Zap, MessageSquare, Bell, UserCheck, Trophy, Video, ChartColumn, Settings, HardDrive, UserCircle, ScrollText, ShieldCheck, Database, Webhook, Key
-} from 'lucide-react'
+import { House, Users, UserPlus, Layers, Play, ListVideo, CreditCard, Zap, MessageSquare, Bell, UserCheck, Trophy, Video, ChartColumn, ChartNoAxesCombined, Key, Webhook, CreditCard as StripeIcon, Database, UserCog, ScrollText, ShieldCheck, Settings, Sliders } from 'lucide-react'
+import { clearSecureToken } from '../lib/api'
 
 const menu = [
   { to: '/', label: 'Dashboard', icon: House },
   { to: '/users', label: 'Users', icon: Users },
   { to: '/app-registrations', label: 'App Registrations', icon: UserPlus },
+  { to: '/user-profiles', label: 'User Profiles', icon: UserCog },
   { to: '/workout-groups', label: 'Workout Groups', icon: Layers },
   { to: '/workout-library', label: 'Workout Library', icon: Play },
   { to: '/workout-plans', label: 'Workout Plans', icon: ListVideo },
   { to: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { to: '/ems-devices', label: 'EMS Devices', icon: Zap },
+  { to: '/trainers', label: 'Trainers', icon: UserCheck },
+  { to: '/live-sessions', label: 'Live Sessions', icon: Video },
   { to: '/community', label: 'Community', icon: MessageSquare },
   { to: '/notifications', label: 'Notifications', icon: Bell },
-  { to: '/trainers', label: 'Trainers', icon: UserCheck },
   { to: '/gamification', label: 'Gamification', icon: Trophy },
-  { to: '/live-sessions', label: 'Live Sessions', icon: Video },
-  { to: '/analytics', label: 'Analytics', icon: ChartColumn },
 ]
 
 const extra = [
-  { to: '/monitoring', label: 'Real-time Monitoring', icon: ChartColumn },
-  { to: '/performance', label: 'System Performance', icon: ChartColumn },
+  { to: '/analytics', label: 'Analytics', icon: ChartColumn },
+  { to: '/advanced-analytics', label: 'Advanced Analytics', icon: ChartNoAxesCombined },
+  { to: '/app-access', label: 'App Access', icon: Key },
+  { to: '/monitoring', label: 'Monitoring', icon: ChartColumn },
+  { to: '/performance', label: 'Performance', icon: ChartColumn },
   { to: '/api-keys', label: 'API Keys', icon: Key },
   { to: '/webhooks', label: 'Webhooks', icon: Webhook },
-  { to: '/stripe', label: 'Stripe Integration', icon: CreditCard },
-  { to: '/backup', label: 'Backup & Restore', icon: HardDrive },
-  { to: '/user-profiles', label: 'User Profiles', icon: UserCircle },
+  { to: '/stripe', label: 'Stripe Integration', icon: StripeIcon },
+  { to: '/backup', label: 'Backup & Restore', icon: Database },
   { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText },
   { to: '/security', label: 'Security & Compliance', icon: ShieldCheck },
   { to: '/settings', label: 'Settings', icon: Settings },
-  { to: '/advanced-settings', label: 'Advanced Settings', icon: Database },
+  { to: '/advanced-settings', label: 'Advanced Settings', icon: Sliders },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const nav = useNavigate()
   const loc = useLocation()
   function logout() {
-    localStorage.removeItem('tb_token')
-    localStorage.removeItem('tb_user')
+    clearSecureToken()
     nav('/login', { replace: true })
   }
   const isActive = (to: string) => {
