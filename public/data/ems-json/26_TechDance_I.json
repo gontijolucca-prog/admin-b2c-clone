@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "description": "This Session is designed for a full-body workout focusing on strength, power, and recovery phases.",
+  "channels": [
+    "chest",
+    "abdomen",
+    "thighFront",
+    "armFront",
+    "armBack",
+    "trapezius",
+    "latissimus",
+    "erectorSpinae",
+    "pygal",
+    "thighBack"
+  ],
+  "events": [
+    {
+      "phase": "Warm Up",
+      "time": "00:00:00",
+      "channel": "None",
+      "frequency": 0,
+      "duration": 0,
+      "pulsePause": 0,
+      "startDelayTime": 0,
+      "endDelayTime": 0,
+      "pulseWidth": 0,
+      "intensity": 0
+    },
+    {
+      "phase": "Dance",
+      "time": "00:03:40",
+      "channel": "All",
+      "frequency": 40,
+      "duration": 1200,
+      "pulsePause": 0,
+      "startDelayTime": 1,
+      "endDelayTime": 1,
+      "pulseWidth": 300,
+      "intensity": 5
+    },
+    {
+      "phase": "Relax",
+      "time": "00:21:30",
+      "channel": "All",
+      "frequency": 10,
+      "duration": 5,
+      "pulsePause": 1,
+      "startDelayTime": 1,
+      "endDelayTime": 1,
+      "pulseWidth": 250,
+      "intensity": 5
+    }
+  ],
+  "metadata": {
+    "author": "Luiz Santana",
+    "notes": "Session focusing on strength, power, and recovery."
+  },
+  "fieldMap": {
+    "Phase name": "phase",
+    "Video TIMELINE (Minutes)": "time (start of range; ends at next event)",
+    "Frequency": "frequency",
+    "Impulse duration (s)": "duration",
+    "Pause duration (s)": "pulsePause",
+    "Impulse rise (ramp up) (s)": "startDelayTime",
+    "Impulse fall (ramp down) (s)": "endDelayTime (optional; defaults used when absent)",
+    "Impulse width (us)": "pulseWidth",
+    "Intensity (%)": "intensity",
+    "Channel selection": "channel (e.g., 'All' or specific parts)"
+  }
+}

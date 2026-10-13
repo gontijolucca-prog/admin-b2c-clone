@@ -1,0 +1,82 @@
+{
+  "version": "1.0",
+  "description": "This Session is designed for a full-body workout focusing on strength, power, and recovery phases.",
+  "channels": [
+    "chest",
+    "abdomen",
+    "thighFront",
+    "armFront",
+    "armBack",
+    "trapezius",
+    "latissimus",
+    "erectorSpinae",
+    "pygal",
+    "thighBack"
+  ],
+  "events": [
+    {
+      "phase": "Warm Up",
+      "time": "00:00:00",
+      "channel": "None",
+      "frequency": 0,
+      "duration": 0,
+      "pulsePause": 0,
+      "startDelayTime": 0,
+      "endDelayTime": 0,
+      "pulseWidth": 0,
+      "intensity": 0
+    },
+    {
+      "phase": "Força",
+      "time": "00:03:55",
+      "channel": "All",
+      "frequency": 85,
+      "duration": 15,
+      "pulsePause": 5,
+      "startDelayTime": 0.5,
+      "endDelayTime": 0.5,
+      "pulseWidth": 350,
+      "intensity": 5
+    },
+    {
+      "phase": "Potência",
+      "time": "00:18:55",
+      "channel": "All",
+      "frequency": 100,
+      "duration": 30,
+      "pulsePause": 30,
+      "startDelayTime": 0.5,
+      "endDelayTime": 0.5,
+      "pulseWidth": 350,
+      "intensity": 5
+    },
+    {
+      "phase": "Relax",
+      "time": "00:23:55",
+      "channel": "All",
+      "frequency": 10,
+      "duration": 5,
+      "pulsePause": 1,
+      "startDelayTime": 0.5,
+      "endDelayTime": 0.5,
+      "pulseWidth": 250,
+      "intensity": 5
+    }
+  ],
+  "metadata": {
+    "author": "Luiz Santana",
+    "notes": "Session focusing on strength, power, and recovery."
+  },
+  "fieldMap": {
+    "Phase name": "phase",
+    "Video TIMELINE (Minutes)": "time (start of range; ends at next event)",
+    "Frequency": "frequency",
+    "Impulse duration (s)": "duration",
+    "Pause duration (s)": "pulsePause",
+    "Impulse rise (ramp up) (s)": "startDelayTime",
+    "Impulse fall (ramp down) (s)": "endDelayTime (optional; defaults used when absent)",
+    "Impulse width (us)": "pulseWidth",
+    "Intensity (%)": "intensity",
+    "Channel selection": "channel (e.g., 'All' or specific parts)"
+  }
+}

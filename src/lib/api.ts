@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_BASE || 'https://admin-b2c.techbody.pt'
+const BASE = import.meta.env.VITE_API_BASE || 'https://api.techbody.pt'
 
 export async function apiPost(path: string, body: unknown) {
   const r = await fetch(`${BASE}${path}`, {
