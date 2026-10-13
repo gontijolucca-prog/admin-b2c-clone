@@ -1,6 +1,10 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { House, Users, UserPlus, Layers, Play, ListVideo, CreditCard, Zap, MessageSquare, Bell, UserCheck, Trophy, Video, ChartColumn, ChartNoAxesCombined, Key, Webhook, CreditCard as StripeIcon, Database, UserCog, ScrollText, ShieldCheck, Settings, Sliders } from 'lucide-react'
 import { clearSecureToken } from '../lib/api'
+import { useEffect, useState } from 'react'
+import { getSessionWithRole, signOutAdmin } from '../lib/adminDb'
+
+const REAL_ROUTES = new Set(['/', '/dashboard', '/users', '/app-registrations', '/workout-library', '/workout-groups', '/workout-plans', '/trainers', '/notifications', '/gamification'])
 
 const menu = [
   { to: '/', label: 'Dashboard', icon: House },
@@ -38,7 +42,20 @@ const extra = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const nav = useNavigate()
   const loc = useLocation()
-  function logout() {
+  const [checked, setChecked] = useState(false)
+  const [email, setEmail] = useState('')
+  useEffect(() => {
+    let alive = true
+    getSessionWithRole().then(({ session, profile }) => {
+      if (!alive) return
+      if (!session || !profile || profile.role !== 'admin' || profile.status !== 'Active') { nav('/login', { replace: true }); return }
+      setEmail(profile.email || session.user.email || '')
+      setChecked(true)
+    }).catch(() => { if (alive) nav('/login', { replace: true }) })
+    return () => { alive = false }
+  }, [nav])
+  async function logout() {
+    await signOutAdmin()
     clearSecureToken()
     nav('/login', { replace: true })
   }
@@ -99,7 +116,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <button onClick={logout} className="flex items-center gap-3 px-3 py-1 rounded-md hover:bg-accent" title="Logout">
                   <span className="w-8 h-8 rounded-full bg-primary text-white grid place-items-center text-sm font-medium">A</span>
                   <span className="hidden lg:block text-left">
-                    <span className="block text-sm font-medium text-gray-900 leading-none">Admin User</span>
+                    <span className="block text-sm font-medium text-gray-900 leading-none">{email || 'Admin'}</span>
                     <span className="block text-xs text-gray-500">Administrator</span>
                   </span>
                 </button>
@@ -107,7 +124,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </header>
           <main className="p-3 sm:p-4 md:p-6 bg-gray-100 min-h-[calc(100vh-64px)]">
-            <div className="max-w-full overflow-x-hidden">{children}</div>
+            <div className="max-w-full overflow-x-hidden">
+              {!REAL_ROUTES.has(loc.pathname) && (
+                <div className="mb-4 flex items-center gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-4 py-2.5">
+                  <span className="inline-flex items-center rounded-full bg-amber-500 text-white text-[11px] font-bold px-2 py-0.5">DEMO</span>
+                  Esta página ainda é demonstração — os dados são de exemplo e não afetam a app.
+                </div>
+              )}
+              {checked ? children : <div className="py-20 text-center text-sm text-gray-500">A verificar sessão…</div>}
+            </div>
           </main>
         </div>
       </div>

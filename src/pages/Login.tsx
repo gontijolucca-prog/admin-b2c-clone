@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { setSecureToken } from '../lib/api'
+import { signInAdmin } from '../lib/adminDb'
 
 export default function Login() {
   const nav = useNavigate()
@@ -15,33 +15,9 @@ export default function Login() {
     setErr('')
     setLoading(true)
     try {
-      const envEmail = import.meta.env.VITE_ADMIN_EMAIL
-      const envPass = import.meta.env.VITE_ADMIN_PASSWORD
-      if (envEmail && envPass && email === envEmail && password === envPass) {
-        const token = btoa(`${email}:${Date.now()}`)
-        setSecureToken(token)
-        localStorage.setItem('tb_user', JSON.stringify({ email }))
-        fetch(`${import.meta.env.VITE_API_BASE || 'https://admin-b2c.techbody.pt'}/auth/login`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-          body: JSON.stringify({ email, password }),
-        }).catch(() => {})
-        nav('/', { replace: true })
-        return
-      }
-      const r = await fetch(`${import.meta.env.VITE_API_BASE || 'https://admin-b2c.techbody.pt'}/auth/login`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      })
-      if (r.ok) {
-        let t = ''
-        try { const j = await r.json(); t = j.token || j.access_token || '' } catch {}
-        if (!t) t = btoa(`${email}:${Date.now()}`)
-        setSecureToken(t)
-        localStorage.setItem('tb_user', JSON.stringify({ email }))
-        nav('/', { replace: true })
-      } else {
-        setErr('Credenciais inválidas. Verifica email e password.')
-      }
+      const res = await signInAdmin(email, password)
+      if (res.error) { setErr(res.error); return }
+      nav('/', { replace: true })
     } catch {
       setErr('Erro de rede. Tenta novamente.')
     } finally {
