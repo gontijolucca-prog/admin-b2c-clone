@@ -1,4 +1,5 @@
 import { sb } from './sb'
+import { setSecureToken } from './api'
 
 const need = () => { if (!sb) throw new Error('Supabase não configurado'); return sb }
 
@@ -33,6 +34,7 @@ export async function signInAdmin(email: string, password: string) {
     await need().auth.signOut()
     return { error: 'Esta conta não tem permissão de admin.' }
   }
+  if (data.session?.access_token) setSecureToken(data.session.access_token)
   return {}
 }
 export async function signOutAdmin() { await need().auth.signOut().catch(() => {}) }
